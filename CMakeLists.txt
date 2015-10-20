@@ -736,10 +736,8 @@ endif (UNIX)
 ############################################################
 if (UNIX)
   # Full lint
-  add_custom_target(lint ${BUILD_SUPPORT_DIR}/lint.sh)
-  # Incremental lint - only checks files changed since the last
-  # merged upstream commit
-  add_custom_target(ilint ${BUILD_SUPPORT_DIR}/lint.sh -c)
+  add_custom_target(lint ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/google-styleguide-r134/cpplint/cpplint.py
+    `find ${CMAKE_CURRENT_SOURCE_DIR}/src -name \\*.cc -or -name \\*.h`)
 endif (UNIX)
 
 
