@@ -452,6 +452,10 @@ class TestStringBuilder : public TestBuilder {
   unique_ptr<StringArray> result_;
 };
 
+TEST_F(TestStringBuilder, TestAttrs) {
+  ASSERT_FALSE(builder_->value_builder()->nullable());
+}
+
 TEST_F(TestStringBuilder, TestScalarAppend) {
   vector<string> strings = {"a", "bb", "", "", "ccc"};
   vector<uint8_t> is_null = {0, 0, 0, 1, 0};

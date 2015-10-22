@@ -411,7 +411,7 @@ class StringBuilder : public ListBuilder {
 
   static TypePtr value_type_;
 };
-TypePtr StringBuilder::value_type_ = TypePtr(new UInt8Type());
+TypePtr StringBuilder::value_type_ = TypePtr(new UInt8Type(false));
 
 
 // class BinaryBuilder : protected ListBuilder {
