@@ -20,16 +20,17 @@ set(UTIL_SRCS
 )
 
 
+# boost_system
+# boost_thread
+
 set(UTIL_LIBS
-  boost_system
-  boost_thread
   glog
   rt)
 
 # We use MallocExtension and HeapChecker, but not in the exported version of
 # the library.
 set(EXPORTED_UTIL_LIBS ${UTIL_LIBS})
-if(${GSTALT_TCMALLOC_AVAILABLE})
+if(${GESTALT_TCMALLOC_AVAILABLE})
   list(APPEND UTIL_LIBS tcmalloc)
 endif()
 
@@ -51,7 +52,7 @@ target_link_libraries(gestalt_test_util
   glog
   gmock
   gestalt_util)
-  
+
 SET_TARGET_PROPERTIES(gestalt_test_util PROPERTIES LINKER_LANGUAGE CXX)
 
 #######################################

@@ -12,16 +12,17 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-set(HELLO_WORLD_SRCS
-  hello_world.cc
+set(GESTALT_SRCS
 )
-
-add_library(hello_world ${HELLO_WORLD_SRCS})
-target_link_libraries(hello_world)
 
 #######################################
 # Unit tests
 #######################################
 
-set(GESTALT_TEST_LINK_LIBS hello_world gestalt_test_util ${GESTALT_MIN_TEST_LIBS})
-ADD_GESTALT_TEST(hello_world-test)
+set(GESTALT_TEST_LINK_LIBS gestalt_test_util ${GESTALT_MIN_TEST_LIBS})
+
+ADD_GESTALT_TEST(types-test)
+ADD_GESTALT_TEST(memory-test)
+ADD_GESTALT_TEST(array-test)
+ADD_GESTALT_TEST(builder-test)
+ADD_GESTALT_TEST(util-test)

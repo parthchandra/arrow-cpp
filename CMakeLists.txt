@@ -17,6 +17,8 @@ cmake_minimum_required(VERSION 2.7)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake_modules")
 include(CMakeParseArguments)
 
+set(BUILD_SUPPORT_DIR ${CMAKE_CURRENT_SOURCE_DIR}/build-support)
+
 # Allow "make install" to not depend on all targets.
 #
 # Must be declared in the top-level CMakeLists.txt.
@@ -56,7 +58,7 @@ endif()
 #     GCC cannot always verify whether strict aliasing rules are indeed followed due to
 #     fundamental limitations in escape analysis, which can result in subtle bad code generation.
 #     This has a small perf hit but worth it to avoid hard to debug crashes.
-set(CXX_COMMON_FLAGS "-fno-strict-aliasing -msse4.2 -Wall -Wno-sign-compare -Wno-deprecated -pthread -D__STDC_FORMAT_MACROS")
+set(CXX_COMMON_FLAGS "-std=c++11 -fno-strict-aliasing -msse4.2 -Wall -Wno-sign-compare -Wno-deprecated -pthread -D__STDC_FORMAT_MACROS")
 
 # compiler flags for different build types (run 'cmake -DCMAKE_BUILD_TYPE=<type> .')
 # For all builds:
@@ -124,7 +126,7 @@ if ("${COMPILER_FAMILY}" STREQUAL "clang")
   # keyword on methods. This doesn't change behavior, and we selectively enable
   # it in src/gutil/port.h only on clang. So, we can safely use it, and don't want
   # to trigger warnings when we do so.
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-c++11-extensions")
+  # set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-c++11-extensions")
 
   # Using Clang with ccache causes a bunch of spurious warnings that are
   # purportedly fixed in the next version of ccache. See the following for details:
@@ -627,7 +629,7 @@ include_directories(SYSTEM ${GMOCK_INCLUDE_DIR} ${GTEST_INCLUDE_DIR})
 ADD_THIRDPARTY_LIB(gmock
   STATIC_LIB ${GMOCK_STATIC_LIBRARY}
   SHARED_LIB ${GMOCK_SHARED_LIBRARY})
-  
+
 ## Google PerfTools
 ##
 ## Disabled with TSAN/ASAN as well as with gold+dynamic linking (see comment
@@ -655,47 +657,47 @@ endif()
 # that might be installed in the system.
 
 ### Workaround for http://stackoverflow.com/questions/9948375/cmake-find-package-succeeds-but-returns-wrong-path
-set(Boost_NO_BOOST_CMAKE ON)
+# set(Boost_NO_BOOST_CMAKE ON)
 
 # Find Boost static libraries.
-set(Boost_USE_STATIC_LIBS ON)
-find_package(Boost COMPONENTS system thread REQUIRED)
-set(BOOST_STATIC_LIBS ${Boost_LIBRARIES})
-list(LENGTH BOOST_STATIC_LIBS BOOST_STATIC_LIBS_LEN)
-list(SORT BOOST_STATIC_LIBS)
+# set(Boost_USE_STATIC_LIBS ON)
+# find_package(Boost COMPONENTS system thread REQUIRED)
+# set(BOOST_STATIC_LIBS ${Boost_LIBRARIES})
+# list(LENGTH BOOST_STATIC_LIBS BOOST_STATIC_LIBS_LEN)
+# list(SORT BOOST_STATIC_LIBS)
 
 # Find Boost shared libraries.
-set(Boost_USE_STATIC_LIBS OFF)
-find_package(Boost COMPONENTS system thread REQUIRED)
-set(BOOST_SHARED_LIBS ${Boost_LIBRARIES})
-list(LENGTH BOOST_SHARED_LIBS BOOST_SHARED_LIBS_LEN)
-list(SORT BOOST_SHARED_LIBS)
+# set(Boost_USE_STATIC_LIBS OFF)
+# find_package(Boost COMPONENTS system thread REQUIRED)
+# set(BOOST_SHARED_LIBS ${Boost_LIBRARIES})
+# list(LENGTH BOOST_SHARED_LIBS BOOST_SHARED_LIBS_LEN)
+# list(SORT BOOST_SHARED_LIBS)
 
 # We should have found the same number of libraries both times.
-if(NOT ${BOOST_SHARED_LIBS_LEN} EQUAL ${BOOST_STATIC_LIBS_LEN})
-  set(ERROR_MSG "Boost static and shared libraries are inconsistent.")
-  set(ERROR_MSG "${ERROR_MSG} Static libraries: ${BOOST_STATIC_LIBS}.")
-  set(ERROR_MSG "${ERROR_MSG} Shared libraries: ${BOOST_SHARED_LIBS}.")
-  message(FATAL_ERROR "${ERROR_MSG}")
-endif()
+# if(NOT ${BOOST_SHARED_LIBS_LEN} EQUAL ${BOOST_STATIC_LIBS_LEN})
+#   set(ERROR_MSG "Boost static and shared libraries are inconsistent.")
+#   set(ERROR_MSG "${ERROR_MSG} Static libraries: ${BOOST_STATIC_LIBS}.")
+#   set(ERROR_MSG "${ERROR_MSG} Shared libraries: ${BOOST_SHARED_LIBS}.")
+#   message(FATAL_ERROR "${ERROR_MSG}")
+# endif()
 
 # Add each pair of static/shared libraries.
-math(EXPR LAST_IDX "${BOOST_STATIC_LIBS_LEN} - 1")
-foreach(IDX RANGE ${LAST_IDX})
-  list(GET BOOST_STATIC_LIBS ${IDX} BOOST_STATIC_LIB)
-  list(GET BOOST_SHARED_LIBS ${IDX} BOOST_SHARED_LIB)
+# math(EXPR LAST_IDX "${BOOST_STATIC_LIBS_LEN} - 1")
+# foreach(IDX RANGE ${LAST_IDX})
+#   list(GET BOOST_STATIC_LIBS ${IDX} BOOST_STATIC_LIB)
+#   list(GET BOOST_SHARED_LIBS ${IDX} BOOST_SHARED_LIB)
 
-  # Remove the prefix/suffix from the library name.
-  #
-  # e.g. libboost_system-mt --> boost_system
-  get_filename_component(LIB_NAME ${BOOST_STATIC_LIB} NAME_WE)
-  string(REGEX REPLACE "lib([^-]*)(-mt)?" "\\1" LIB_NAME_NO_PREFIX_SUFFIX ${LIB_NAME})
-  ADD_THIRDPARTY_LIB(${LIB_NAME_NO_PREFIX_SUFFIX}
-    STATIC_LIB "${BOOST_STATIC_LIB}"
-    SHARED_LIB "${BOOST_SHARED_LIB}")
-  list(APPEND GESTALT_BASE_LIBS ${LIB_NAME_NO_PREFIX_SUFFIX})
-endforeach()
-include_directories(SYSTEM ${Boost_INCLUDE_DIR})
+#   # Remove the prefix/suffix from the library name.
+#   #
+#   # e.g. libboost_system-mt --> boost_system
+#   get_filename_component(LIB_NAME ${BOOST_STATIC_LIB} NAME_WE)
+#   string(REGEX REPLACE "lib([^-]*)(-mt)?" "\\1" LIB_NAME_NO_PREFIX_SUFFIX ${LIB_NAME})
+#   ADD_THIRDPARTY_LIB(${LIB_NAME_NO_PREFIX_SUFFIX}
+#     STATIC_LIB "${BOOST_STATIC_LIB}"
+#     SHARED_LIB "${BOOST_SHARED_LIB}")
+#   list(APPEND GESTALT_BASE_LIBS ${LIB_NAME_NO_PREFIX_SUFFIX})
+# endforeach()
+# include_directories(SYSTEM ${Boost_INCLUDE_DIR})
 
 ############################################################
 # Linker setup
@@ -737,6 +739,8 @@ endif (UNIX)
 if (UNIX)
   # Full lint
   add_custom_target(lint ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/google-styleguide-r134/cpplint/cpplint.py
+  --verbose=4
+  --filter=-whitespace/comments,-readability/todo,-build/header_guard,-build/include_order
     `find ${CMAKE_CURRENT_SOURCE_DIR}/src -name \\*.cc -or -name \\*.h`)
 endif (UNIX)
 
@@ -745,5 +749,5 @@ endif (UNIX)
 # Subdirectories
 ############################################################
 
-add_subdirectory(src/cpp/util)
-add_subdirectory(src/cpp/hello_world)
+add_subdirectory(src/gestalt)
+add_subdirectory(src/gestalt/util)
