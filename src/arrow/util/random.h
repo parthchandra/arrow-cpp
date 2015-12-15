@@ -4,14 +4,14 @@
 
 // Moved from Kudu http://github.com/cloudera/kudu
 
-#ifndef GESTALT_UTIL_RANDOM_H_
-#define GESTALT_UTIL_RANDOM_H_
+#ifndef ARROW_UTIL_RANDOM_H_
+#define ARROW_UTIL_RANDOM_H_
 
 #include <stdint.h>
 
 #include <cmath>
 
-namespace gestalt {
+namespace arrow {
 
 namespace random_internal {
 
@@ -121,6 +121,6 @@ uint32_t random_seed() {
 }
 
 
-} // namespace gestalt
+} // namespace arrow
 
-#endif  // GESTALT_UTIL_RANDOM_H_
+#endif  // ARROW_UTIL_RANDOM_H_

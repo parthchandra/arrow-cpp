@@ -19,12 +19,12 @@
 #include <gflags/gflags.h>
 #include <gtest/gtest.h>
 
-#include "gestalt/memory.h"
-#include "gestalt/test-util.h"
+#include "arrow/memory.h"
+#include "arrow/test-util.h"
 
 using std::string;
 
-namespace gestalt {
+namespace arrow {
 
 class TestBuffer : public TestBase {
 
@@ -189,4 +189,4 @@ TEST_F(TestBuffer, ResizeOOM) {
   }
 }
 
-} // namespace gestalt
+} // namespace arrow

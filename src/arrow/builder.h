@@ -12,21 +12,21 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef GESTALT_BUILDER_H
-#define GESTALT_BUILDER_H
+#ifndef ARROW_BUILDER_H
+#define ARROW_BUILDER_H
 
 #include <cstdint>
 #include <memory>
 #include <string>
 #include <vector>
 
-#include "gestalt/array.h"
-#include "gestalt/status.h"
-#include "gestalt/types.h"
-#include "gestalt/memory.h"
-#include "gestalt/util.h"
+#include "arrow/array.h"
+#include "arrow/status.h"
+#include "arrow/types.h"
+#include "arrow/memory.h"
+#include "arrow/util.h"
 
-namespace gestalt {
+namespace arrow {
 
 static constexpr size_t MIN_BUILDER_CAPACITY = 1 << 8;
 
@@ -479,6 +479,6 @@ Status make_builder(MemoryPool* pool, const TypePtr& type, ArrayBuilder** out) {
   }
 }
 
-} // namespace gestalt
+} // namespace arrow
 
-#endif // GESTALT_BUILDER_H_
+#endif // ARROW_BUILDER_H_

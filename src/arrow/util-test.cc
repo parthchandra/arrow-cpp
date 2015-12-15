@@ -17,9 +17,9 @@
 
 #include <gtest/gtest.h>
 
-#include "gestalt/util.h"
+#include "arrow/util.h"
 
-namespace gestalt {
+namespace arrow {
 
 TEST(UtilTests, TestNextPower2) {
   using util::next_power2;
@@ -41,4 +41,4 @@ TEST(UtilTests, TestNextPower2) {
   ASSERT_EQ(1ULL << 63, next_power2((1ULL << 63) - 1));
 }
 
-} // namespace gestalt
+} // namespace arrow

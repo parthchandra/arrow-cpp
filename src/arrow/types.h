@@ -12,15 +12,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef GESTALT_TYPES_H
-#define GESTALT_TYPES_H
+#ifndef ARROW_TYPES_H
+#define ARROW_TYPES_H
 
 #include <cstdint>
 #include <memory>
 #include <string>
 #include <vector>
 
-namespace gestalt {
+namespace arrow {
 
 // Physical data type that describes the memory layout of values. See details
 // for each type
@@ -492,6 +492,6 @@ TypePtr JSONScalar::dense_type = TypePtr(new DenseUnionType(json_types));
 TypePtr JSONScalar::sparse_type = TypePtr(new SparseUnionType(json_types));
 
 
-} // namespace gestalt
+} // namespace arrow
 
-#endif  // GESTALT_TYPES_H
+#endif  // ARROW_TYPES_H

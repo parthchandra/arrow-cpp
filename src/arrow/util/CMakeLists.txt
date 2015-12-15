@@ -13,7 +13,7 @@
 # limitations under the License.
 
 #######################################
-# gestalt_util
+# arrow_util
 #######################################
 
 set(UTIL_SRCS
@@ -30,42 +30,42 @@ set(UTIL_LIBS
 # We use MallocExtension and HeapChecker, but not in the exported version of
 # the library.
 set(EXPORTED_UTIL_LIBS ${UTIL_LIBS})
-if(${GESTALT_TCMALLOC_AVAILABLE})
+if(${ARROW_TCMALLOC_AVAILABLE})
   list(APPEND UTIL_LIBS tcmalloc)
 endif()
 
-ADD_EXPORTABLE_LIBRARY(gestalt_util
+ADD_EXPORTABLE_LIBRARY(arrow_util
   SRCS ${UTIL_SRCS}
   DEPS ${UTIL_LIBS}
   EXPORTED_DEPS ${EXPORTED_UTIL_LIBS})
 
-SET_TARGET_PROPERTIES(gestalt_util PROPERTIES LINKER_LANGUAGE CXX)
-SET_TARGET_PROPERTIES(gestalt_util_exported PROPERTIES LINKER_LANGUAGE CXX)
+SET_TARGET_PROPERTIES(arrow_util PROPERTIES LINKER_LANGUAGE CXX)
+SET_TARGET_PROPERTIES(arrow_util_exported PROPERTIES LINKER_LANGUAGE CXX)
 
 #######################################
-# gestalt_test_util
+# arrow_test_util
 #######################################
 
-add_library(gestalt_test_util)
-target_link_libraries(gestalt_test_util
+add_library(arrow_test_util)
+target_link_libraries(arrow_test_util
   gflags
   glog
   gmock
-  gestalt_util)
+  arrow_util)
 
-SET_TARGET_PROPERTIES(gestalt_test_util PROPERTIES LINKER_LANGUAGE CXX)
+SET_TARGET_PROPERTIES(arrow_test_util PROPERTIES LINKER_LANGUAGE CXX)
 
 #######################################
-# gestalt_test_main
+# arrow_test_main
 #######################################
 
-add_library(gestalt_test_main
+add_library(arrow_test_main
   test_main.cc)
-target_link_libraries(gestalt_test_main
+target_link_libraries(arrow_test_main
   gflags
   glog
   gmock
-  gestalt_util
-  gestalt_test_util
+  arrow_util
+  arrow_test_util
   dl
   rt)

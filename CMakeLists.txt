@@ -140,8 +140,8 @@ if ("${COMPILER_FAMILY}" STREQUAL "clang")
   #
   # This test is imperfect because 'cmake' and 'make' can be run independently
   # (with different terminal options), and we're testing during the former.
-  execute_process(COMMAND test -t 2 RESULT_VARIABLE GESTALT_IS_TTY)
-  if ((${GESTALT_IS_TTY} EQUAL 0) AND (NOT ("$ENV{TERM}" STREQUAL "dumb")))
+  execute_process(COMMAND test -t 2 RESULT_VARIABLE ARROW_IS_TTY)
+  if ((${ARROW_IS_TTY} EQUAL 0) AND (NOT ("$ENV{TERM}" STREQUAL "dumb")))
     message("Running in a controlling terminal")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fcolor-diagnostics")
   else()
@@ -154,25 +154,25 @@ if ("${COMPILER_FAMILY}" STREQUAL "clang")
 endif()
 
 # Sanity check linking option.
-if (NOT GESTALT_LINK)
-  set(GESTALT_LINK "a")
-elseif(NOT ("auto" MATCHES "^${GESTALT_LINK}" OR
-            "dynamic" MATCHES "^${GESTALT_LINK}" OR
-            "static" MATCHES "^${GESTALT_LINK}"))
-  message(FATAL_ERROR "Unknown value for GESTALT_LINK, must be auto|dynamic|static")
+if (NOT ARROW_LINK)
+  set(ARROW_LINK "a")
+elseif(NOT ("auto" MATCHES "^${ARROW_LINK}" OR
+            "dynamic" MATCHES "^${ARROW_LINK}" OR
+            "static" MATCHES "^${ARROW_LINK}"))
+  message(FATAL_ERROR "Unknown value for ARROW_LINK, must be auto|dynamic|static")
 else()
   # Remove all but the first letter.
-  string(SUBSTRING "${GESTALT_LINK}" 0 1 GESTALT_LINK)
+  string(SUBSTRING "${ARROW_LINK}" 0 1 ARROW_LINK)
 endif()
 
 # Clang does not support using ASAN and TSAN simultaneously.
-if ("${GESTALT_USE_ASAN}" AND "${GESTALT_USE_TSAN}")
+if ("${ARROW_USE_ASAN}" AND "${ARROW_USE_TSAN}")
   message(SEND_ERROR "Can only enable one of ASAN or TSAN at a time")
 endif()
 
 # Flag to enable clang address sanitizer
 # This will only build if clang or a recent enough gcc is the chosen compiler
-if (${GESTALT_USE_ASAN})
+if (${ARROW_USE_ASAN})
   if(NOT (("${COMPILER_FAMILY}" STREQUAL "clang") OR
           ("${COMPILER_FAMILY}" STREQUAL "gcc" AND "${COMPILER_VERSION}" VERSION_GREATER "4.8")))
     message(SEND_ERROR "Cannot use ASAN without clang or gcc >= 4.8")
@@ -180,13 +180,13 @@ if (${GESTALT_USE_ASAN})
 
   # If UBSAN is also enabled, and we're on clang < 3.5, ensure static linking is
   # enabled. Otherwise, we run into https://llvm.org/bugs/show_bug.cgi?id=18211
-  if("${GESTALT_USE_UBSAN}" AND
+  if("${ARROW_USE_UBSAN}" AND
       "${COMPILER_FAMILY}" STREQUAL "clang" AND
       "${COMPILER_VERSION}" VERSION_LESS "3.5")
-    if("${GESTALT_LINK}" STREQUAL "a")
+    if("${ARROW_LINK}" STREQUAL "a")
       message("Using static linking for ASAN+UBSAN build")
-      set(GESTALT_LINK "s")
-    elseif("${GESTALT_LINK}" STREQUAL "d")
+      set(ARROW_LINK "s")
+    elseif("${ARROW_LINK}" STREQUAL "d")
       message(SEND_ERROR "Cannot use dynamic linking when ASAN and UBSAN are both enabled")
     endif()
   endif()
@@ -201,7 +201,7 @@ set(CMAKE_C_FLAGS "${CMAKE_CXX_FLAGS}")
 # - disable 'vptr' because it currently crashes somewhere in boost::intrusive::list code
 # - disable 'alignment' because unaligned access is really OK on Nehalem and we do it
 #   all over the place.
-if (${GESTALT_USE_UBSAN})
+if (${ARROW_USE_UBSAN})
   if(NOT (("${COMPILER_FAMILY}" STREQUAL "clang") OR
           ("${COMPILER_FAMILY}" STREQUAL "gcc" AND "${COMPILER_VERSION}" VERSION_GREATER "4.9")))
     message(SEND_ERROR "Cannot use UBSAN without clang or gcc >= 4.9")
@@ -210,7 +210,7 @@ if (${GESTALT_USE_UBSAN})
 endif ()
 
 # Flag to enable thread sanitizer (clang or gcc 4.8)
-if (${GESTALT_USE_TSAN})
+if (${ARROW_USE_TSAN})
   if(NOT (("${COMPILER_FAMILY}" STREQUAL "clang") OR
           ("${COMPILER_FAMILY}" STREQUAL "gcc" AND "${COMPILER_VERSION}" VERSION_GREATER "4.8")))
     message(SEND_ERROR "Cannot use TSAN without clang or gcc >= 4.8")
@@ -235,16 +235,16 @@ if (${GESTALT_USE_TSAN})
   # require all code to be position independent, and the easiest way to
   # guarantee that is via dynamic linking (not all 3rd party archives are
   # compiled with -fPIC e.g. boost).
-  if("${GESTALT_LINK}" STREQUAL "a")
+  if("${ARROW_LINK}" STREQUAL "a")
     message("Using dynamic linking for TSAN")
-    set(GESTALT_LINK "d")
-  elseif("${GESTALT_LINK}" STREQUAL "s")
+    set(ARROW_LINK "d")
+  elseif("${ARROW_LINK}" STREQUAL "s")
     message(SEND_ERROR "Cannot use TSAN with static linking")
   endif()
 endif()
 
 
-if ("${GESTALT_USE_UBSAN}" OR "${GESTALT_USE_ASAN}" OR "${GESTALT_USE_TSAN}")
+if ("${ARROW_USE_UBSAN}" OR "${ARROW_USE_ASAN}" OR "${ARROW_USE_TSAN}")
   # GCC 4.8 and 4.9 (latest as of this writing) don't allow you to specify a
   # sanitizer blacklist.
   if("${COMPILER_FAMILY}" STREQUAL "clang")
@@ -261,7 +261,7 @@ if ("${GESTALT_USE_UBSAN}" OR "${GESTALT_USE_ASAN}" OR "${GESTALT_USE_TSAN}")
 endif()
 
 # Code coverage
-if ("${GESTALT_GENERATE_COVERAGE}")
+if ("${ARROW_GENERATE_COVERAGE}")
   if("${CMAKE_CXX_COMPILER}" MATCHES ".*clang.*")
     # There appears to be some bugs in clang 3.3 which cause code coverage
     # to have link errors, not locating the llvm_gcda_* symbols.
@@ -273,24 +273,24 @@ if ("${GESTALT_GENERATE_COVERAGE}")
   # For coverage to work properly, we need to use static linkage. Otherwise,
   # __gcov_flush() doesn't properly flush coverage from every module.
   # See http://stackoverflow.com/questions/28164543/using-gcov-flush-within-a-library-doesnt-force-the-other-modules-to-yield-gc
-  if("${GESTALT_LINK}" STREQUAL "a")
+  if("${ARROW_LINK}" STREQUAL "a")
     message("Using static linking for coverage build")
-    set(GESTALT_LINK "s")
-  elseif("${GESTALT_LINK}" STREQUAL "d")
+    set(ARROW_LINK "s")
+  elseif("${ARROW_LINK}" STREQUAL "d")
     message(SEND_ERROR "Cannot use coverage with static linking")
   endif()
 endif()
 
 # If we still don't know what kind of linking to perform, choose based on
 # build type (developers like fast builds).
-if ("${GESTALT_LINK}" STREQUAL "a")
+if ("${ARROW_LINK}" STREQUAL "a")
   if ("${CMAKE_BUILD_TYPE}" STREQUAL "DEBUG" OR
       "${CMAKE_BUILD_TYPE}" STREQUAL "FASTDEBUG")
     message("Using dynamic linking for ${CMAKE_BUILD_TYPE} builds")
-    set(GESTALT_LINK "d")
+    set(ARROW_LINK "d")
   else()
     message("Using static linking for ${CMAKE_BUILD_TYPE} builds")
-    set(GESTALT_LINK "s")
+    set(ARROW_LINK "s")
   endif()
 endif()
 
@@ -307,21 +307,21 @@ if (NOT APPLE)
   execute_process(COMMAND ${CMAKE_CXX_COMPILER} -Wl,--version OUTPUT_VARIABLE LINKER_OUTPUT)
 endif ()
 if (LINKER_OUTPUT MATCHES "gold")
-  if ("${GESTALT_LINK}" STREQUAL "d" AND
+  if ("${ARROW_LINK}" STREQUAL "d" AND
       "${CMAKE_BUILD_TYPE}" STREQUAL "RELEASE")
     message(SEND_ERROR "Cannot use gold with dynamic linking in a RELEASE build "
       "as it would cause tcmalloc symbols to get dropped")
   else()
     message("Using gold linker")
   endif()
-  set(GESTALT_USING_GOLD 1)
+  set(ARROW_USING_GOLD 1)
 else()
   message("Using ld linker")
 endif()
 
-# Having set GESTALT_LINK due to build type and/or sanitizer, it's now safe to
+# Having set ARROW_LINK due to build type and/or sanitizer, it's now safe to
 # act on its value.
-if ("${GESTALT_LINK}" STREQUAL "d")
+if ("${ARROW_LINK}" STREQUAL "d")
   set(BUILD_SHARED_LIBS ON)
 
   # Position independent code is only necessary when producing shared objects.
@@ -361,14 +361,14 @@ include_directories(src)
 include(GenerateExportHeader)
 
 # add_library() wrapper that adds a second variant of the library for use in the
-# exported Gestalt C++ client. This variant is suffixed with "_exported" and is
+# exported Arrow C++ client. This variant is suffixed with "_exported" and is
 # compiled with special visibility flags to hide all symbols except those that
 # are part of the public ABI.
 #
 # There are two different kinds of exported libraries: internal and leaf.
 # Internal libraries are static archives while leaf libraries are shared
 # objects built from internal libraries. In practice there is only one leaf
-# library: the Gestalt C++ client itself.
+# library: the Arrow C++ client itself.
 #
 # Arguments:
 #
@@ -432,14 +432,14 @@ function(ADD_EXPORTABLE_LIBRARY LIB_NAME)
   add_library(${EXPORTED_LIB_NAME} ${EXPORTED_LINKAGE} ${ARG_SRCS})
 
   # Compile with visibility flags:
-  # - default for classes annotated with GESTALT_EXPORT.
-  # - hidden for classes annotated with GESTALT_NO_EXPORT.
+  # - default for classes annotated with ARROW_EXPORT.
+  # - hidden for classes annotated with ARROW_NO_EXPORT.
   # - hidden for everything else.
   add_compiler_export_flags(EXPORTED_FLAGS)
 
   # Exported variants are either static archives that will be linked to a shared
   # object, or shared objects. Either way, -fPIC is needed.
-  if("${GESTALT_LINK}" STREQUAL "s")
+  if("${ARROW_LINK}" STREQUAL "s")
     set(EXPORTED_FLAGS "${EXPORTED_FLAGS} -fPIC")
   endif()
 
@@ -451,8 +451,8 @@ function(ADD_EXPORTABLE_LIBRARY LIB_NAME)
   # COMPILE_FLAGS, which, lucky for us, is emitted on the command line after
   # COMPILE_DEFINITIONS.
 
-  # Exported variants need GESTALT_EXPORT definitions to take effect.
-  set(EXPORTED_FLAGS "${EXPORTED_FLAGS} -UGESTALT_STATIC_DEFINE")
+  # Exported variants need ARROW_EXPORT definitions to take effect.
+  set(EXPORTED_FLAGS "${EXPORTED_FLAGS} -UARROW_STATIC_DEFINE")
 
   # Exported variants may not use tcmalloc.
   set(EXPORTED_FLAGS "${EXPORTED_FLAGS} -UTCMALLOC_ENABLED")
@@ -501,7 +501,7 @@ endfunction()
 # unique name.
 #
 # Arguments after the test name will be passed to set_tests_properties().
-function(ADD_GESTALT_TEST REL_TEST_NAME)
+function(ADD_ARROW_TEST REL_TEST_NAME)
   if(NO_TESTS)
     return()
   endif()
@@ -511,7 +511,7 @@ function(ADD_GESTALT_TEST REL_TEST_NAME)
     # This test has a corresponding .cc file, set it up as an executable.
     set(TEST_PATH "${EXECUTABLE_OUTPUT_PATH}/${TEST_NAME}")
     add_executable(${TEST_NAME} "${REL_TEST_NAME}.cc")
-    target_link_libraries(${TEST_NAME} ${GESTALT_TEST_LINK_LIBS})
+    target_link_libraries(${TEST_NAME} ${ARROW_TEST_LINK_LIBS})
   else()
     # No executable, just invoke the test (probably a script) directly.
     set(TEST_PATH ${CMAKE_CURRENT_SOURCE_DIR}/${REL_TEST_NAME})
@@ -525,7 +525,7 @@ function(ADD_GESTALT_TEST REL_TEST_NAME)
 endfunction()
 
 # A wrapper for add_dependencies() that is compatible with NO_TESTS.
-function(ADD_GESTALT_TEST_DEPENDENCIES REL_TEST_NAME)
+function(ADD_ARROW_TEST_DEPENDENCIES REL_TEST_NAME)
   if(NO_TESTS)
     return()
   endif()
@@ -548,7 +548,7 @@ function(ADD_THIRDPARTY_LIB LIB_NAME)
     message(SEND_ERROR "Error: unrecognized arguments: ${ARG_UNPARSED_ARGUMENTS}")
   endif()
 
-  if(("${GESTALT_LINK}" STREQUAL "s" AND ARG_STATIC_LIB) OR (NOT ARG_SHARED_LIB))
+  if(("${ARROW_LINK}" STREQUAL "s" AND ARG_STATIC_LIB) OR (NOT ARG_SHARED_LIB))
     if(NOT ARG_STATIC_LIB)
       message(FATAL_ERROR "No static or shared library provided for ${LIB_NAME}")
     endif()
@@ -602,7 +602,7 @@ include_directories(SYSTEM ${GLOG_INCLUDE_DIR})
 ADD_THIRDPARTY_LIB(glog
   STATIC_LIB "${GLOG_STATIC_LIB}"
   SHARED_LIB "${GLOG_SHARED_LIB}")
-list(APPEND GESTALT_BASE_LIBS glog)
+list(APPEND ARROW_BASE_LIBS glog)
 
 ## libunwind (dependent of glog)
 ## Doesn't build on OSX.
@@ -612,7 +612,7 @@ if (NOT APPLE)
   ADD_THIRDPARTY_LIB(unwind
     STATIC_LIB "${UNWIND_STATIC_LIB}"
     SHARED_LIB "${UNWIND_SHARED_LIB}")
-  list(APPEND GESTALT_BASE_LIBS unwind)
+  list(APPEND ARROW_BASE_LIBS unwind)
 endif()
 
 ## GFlags
@@ -621,7 +621,7 @@ include_directories(SYSTEM ${GFLAGS_INCLUDE_DIR})
 ADD_THIRDPARTY_LIB(gflags
   STATIC_LIB "${GFLAGS_STATIC_LIB}"
   SHARED_LIB "${GFLAGS_SHARED_LIB}")
-list(APPEND GESTALT_BASE_LIBS gflags)
+list(APPEND ARROW_BASE_LIBS gflags)
 
 ## GMock
 find_package(GMock REQUIRED)
@@ -633,20 +633,20 @@ ADD_THIRDPARTY_LIB(gmock
 ## Google PerfTools
 ##
 ## Disabled with TSAN/ASAN as well as with gold+dynamic linking (see comment
-## near definition of GESTALT_USING_GOLD).
+## near definition of ARROW_USING_GOLD).
 find_package(GPerf REQUIRED)
-if (NOT "${GESTALT_USE_ASAN}" AND
-    NOT "${GESTALT_USE_TSAN}" AND
-    NOT ("${GESTALT_USING_GOLD}" AND "${GESTALT_LINK}" STREQUAL "d"))
+if (NOT "${ARROW_USE_ASAN}" AND
+    NOT "${ARROW_USE_TSAN}" AND
+    NOT ("${ARROW_USING_GOLD}" AND "${ARROW_LINK}" STREQUAL "d"))
   ADD_THIRDPARTY_LIB(tcmalloc
     STATIC_LIB "${TCMALLOC_STATIC_LIB}"
     SHARED_LIB "${TCMALLOC_SHARED_LIB}")
   ADD_THIRDPARTY_LIB(profiler
     STATIC_LIB "${PROFILER_STATIC_LIB}"
     SHARED_LIB "${PROFILER_SHARED_LIB}")
-  list(APPEND GESTALT_BASE_LIBS tcmalloc profiler)
+  list(APPEND ARROW_BASE_LIBS tcmalloc profiler)
   add_definitions("-DTCMALLOC_ENABLED")
-  set(GESTALT_TCMALLOC_AVAILABLE 1)
+  set(ARROW_TCMALLOC_AVAILABLE 1)
 endif()
 
 ## Boost
@@ -695,15 +695,15 @@ endif()
 #   ADD_THIRDPARTY_LIB(${LIB_NAME_NO_PREFIX_SUFFIX}
 #     STATIC_LIB "${BOOST_STATIC_LIB}"
 #     SHARED_LIB "${BOOST_SHARED_LIB}")
-#   list(APPEND GESTALT_BASE_LIBS ${LIB_NAME_NO_PREFIX_SUFFIX})
+#   list(APPEND ARROW_BASE_LIBS ${LIB_NAME_NO_PREFIX_SUFFIX})
 # endforeach()
 # include_directories(SYSTEM ${Boost_INCLUDE_DIR})
 
 ############################################################
 # Linker setup
 ############################################################
-set(GESTALT_MIN_TEST_LIBS gestalt_test_main gestalt_test_util ${GESTALT_BASE_LIBS})
-set(GESTALT_TEST_LINK_LIBS ${GESTALT_MIN_TEST_LIBS})
+set(ARROW_MIN_TEST_LIBS arrow_test_main arrow_test_util ${ARROW_BASE_LIBS})
+set(ARROW_TEST_LINK_LIBS ${ARROW_MIN_TEST_LIBS})
 
 ############################################################
 # "make ctags" target
@@ -749,5 +749,16 @@ endif (UNIX)
 # Subdirectories
 ############################################################
 
-add_subdirectory(src/gestalt)
-add_subdirectory(src/gestalt/util)
+add_subdirectory(src/arrow)
+add_subdirectory(src/arrow/util)
+
+
+set(LINK_LIBS
+  arrow_util)
+
+
+ADD_EXPORTABLE_LIBRARY(arrow
+  SRCS ${ARROW_SRCS}
+  DEPS ${LINK_LIBS})
+set_target_properties(arrow PROPERTIES LINKER_LANGUAGE CXX)
+set_target_properties(arrow_exported PROPERTIES LINKER_LANGUAGE CXX)

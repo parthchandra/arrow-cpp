@@ -19,14 +19,14 @@
 #include <gflags/gflags.h>
 #include <gtest/gtest.h>
 
-#include "gestalt/array.h"
-#include "gestalt/memory.h"
-#include "gestalt/test-util.h"
+#include "arrow/array.h"
+#include "arrow/memory.h"
+#include "arrow/test-util.h"
 
 using std::string;
 using std::vector;
 
-namespace gestalt {
+namespace arrow {
 
 static TypePtr int32 = TypePtr(new Int32Type());
 static TypePtr int32_nn = TypePtr(new Int32Type(false));
@@ -199,4 +199,4 @@ TEST_F(TestStringArrayBasics, TestGetString) {
 }
 
 
-} // namespace gestalt
+} // namespace arrow

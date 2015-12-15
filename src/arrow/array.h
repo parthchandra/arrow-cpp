@@ -14,18 +14,18 @@
 
 // Immutable array data containers
 
-#ifndef GESTALT_ARRAY_H
-#define GESTALT_ARRAY_H
+#ifndef ARROW_ARRAY_H
+#define ARROW_ARRAY_H
 
 #include <string>
 #include <vector>
 
-#include "gestalt/status.h"
-#include "gestalt/memory.h"
-#include "gestalt/types.h"
-#include "gestalt/util.h"
+#include "arrow/status.h"
+#include "arrow/memory.h"
+#include "arrow/types.h"
+#include "arrow/util.h"
 
-namespace gestalt {
+namespace arrow {
 
 // Immutable data array with some logical type and some length. Any memory is
 // owned by the respective Buffer instance (or its parents). May or may not be
@@ -295,6 +295,6 @@ class SparseUnionArray : public UnionArray {
   SparseUnionArray() : UnionArray() {}
 };
 
-} // namespace gestalt
+} // namespace arrow
 
 #endif

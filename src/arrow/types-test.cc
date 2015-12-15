@@ -17,11 +17,11 @@
 #include <gflags/gflags.h>
 #include <gtest/gtest.h>
 
-#include "gestalt/types.h"
+#include "arrow/types.h"
 
 using std::string;
 
-namespace gestalt {
+namespace arrow {
 
 TEST(TypesTest, TestBytesType) {
   BytesType t1(3);
@@ -129,4 +129,4 @@ TEST(TypesTest, TestListType) {
   ASSERT_EQ(lt2.ToString(), string("list<list<string>>"));
 }
 
-} // namespace gestalt
+} // namespace arrow

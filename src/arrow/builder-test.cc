@@ -19,15 +19,15 @@
 #include <gflags/gflags.h>
 #include <gtest/gtest.h>
 
-#include "gestalt/builder.h"
-#include "gestalt/memory.h"
-#include "gestalt/test-util.h"
+#include "arrow/builder.h"
+#include "arrow/memory.h"
+#include "arrow/test-util.h"
 
 using std::string;
 using std::unique_ptr;
 using std::vector;
 
-namespace gestalt {
+namespace arrow {
 
 // ----------------------------------------------------------------------
 // Common array builder API
@@ -499,4 +499,4 @@ TEST_F(TestStringBuilder, TestZeroLength) {
   Done();
 }
 
-} // namespace gestalt
+} // namespace arrow

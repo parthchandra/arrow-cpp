@@ -12,12 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef GESTALT_UTIL_H
-#define GESTALT_UTIL_H
+#ifndef ARROW_UTIL_H
+#define ARROW_UTIL_H
 
 #include <cstdlib>
 
-namespace gestalt {
+namespace arrow {
 
 namespace util {
 
@@ -76,6 +76,6 @@ uint8_t* bytes_to_bits(uint8_t* bytes, size_t length, size_t* out_length) {
 
 } // namespace util
 
-} // namespace gestalt
+} // namespace arrow
 
-#endif // GESTALT_UTIL_H
+#endif // ARROW_UTIL_H

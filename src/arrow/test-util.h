@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef GESTALT_TEST_UTIL_H_
-#define GESTALT_TEST_UTIL_H_
+#ifndef ARROW_TEST_UTIL_H_
+#define ARROW_TEST_UTIL_H_
 
 #include <memory>
 #include <string>
@@ -22,10 +22,10 @@
 #include <gflags/gflags.h>
 #include <gtest/gtest.h>
 
-#include "gestalt/memory.h"
-#include "gestalt/status.h"
-#include "gestalt/util/random.h"
-#include "gestalt/util.h"
+#include "arrow/memory.h"
+#include "arrow/status.h"
+#include "arrow/util/random.h"
+#include "arrow/util.h"
 
 #define ASSERT_RAISES(ENUM, expr)               \
   do {                                          \
@@ -53,7 +53,7 @@
   } while (0)
 
 
-namespace gestalt {
+namespace arrow {
 
 class TestBase : public ::testing::Test {
  public:
@@ -106,6 +106,6 @@ Buffer* bytes_to_null_buffer(uint8_t* bytes, size_t length) {
   return new Buffer(bits, out_length);
 }
 
-} // namespace gestalt
+} // namespace arrow
 
-#endif // GESTALT_TEST_UTIL_H_
+#endif // ARROW_TEST_UTIL_H_

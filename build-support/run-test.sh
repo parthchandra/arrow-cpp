@@ -89,8 +89,8 @@ if [ -z "$ASAN_SYMBOLIZER_PATH" ]; then
 fi
 
 # Allow for collecting core dumps.
-GESTALT_TEST_ULIMIT_CORE=${GESTALT_TEST_ULIMIT_CORE:-0}
-ulimit -c $GESTALT_TEST_ULIMIT_CORE
+ARROW_TEST_ULIMIT_CORE=${ARROW_TEST_ULIMIT_CORE:-0}
+ulimit -c $ARROW_TEST_ULIMIT_CORE
 
 # Run the actual test.
 for ATTEMPT_NUMBER in $(seq 1 $TEST_EXECUTION_ATTEMPTS) ; do

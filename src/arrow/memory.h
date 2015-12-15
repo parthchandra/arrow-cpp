@@ -14,16 +14,16 @@
 
 // Reference-counted buffer classes plus memory allocation and accounting
 
-#ifndef GESTALT_MEMORY_H
-#define GESTALT_MEMORY_H
+#ifndef ARROW_MEMORY_H
+#define ARROW_MEMORY_H
 
 #include <cstdint>
 #include <cstdlib>
 #include <unordered_map>
 
-#include "gestalt/status.h"
+#include "arrow/status.h"
 
-namespace gestalt {
+namespace arrow {
 
 class Buffer {
  public:
@@ -274,6 +274,6 @@ Status Buffer::Resize(size_t new_size) {
   return static_cast<MemoryPool*>(pool_)->Resize(this, new_size);
 }
 
-} // namespace gestalt
+} // namespace arrow
 
-#endif // GESTALT_MEMORY_H
+#endif // ARROW_MEMORY_H

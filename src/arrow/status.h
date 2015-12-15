@@ -12,50 +12,50 @@
 
 // Adapted from Kudu github.com/cloudera/kudu
 
-#ifndef GESTALT_STATUS_H_
-#define GESTALT_STATUS_H_
+#ifndef ARROW_STATUS_H_
+#define ARROW_STATUS_H_
 
 #include <string>
 
 #include <glog/logging.h>
 
 // Return the given status if it is not OK.
-#define GESTALT_RETURN_NOT_OK(s) do {           \
-    ::gestalt::Status _s = (s);                 \
+#define ARROW_RETURN_NOT_OK(s) do {           \
+    ::arrow::Status _s = (s);                 \
     if (!_s.ok()) return _s;                    \
   } while (0);
 
 // Return the given status if it is not OK, but first clone it and
 // prepend the given message.
-#define GESTALT_RETURN_NOT_OK_PREPEND(s, msg) do {                      \
-    ::gestalt::Status _s = (s);                                         \
+#define ARROW_RETURN_NOT_OK_PREPEND(s, msg) do {                      \
+    ::arrow::Status _s = (s);                                         \
     if (::gutil::PREDICT_FALSE(!_s.ok())) return _s.CloneAndPrepend(msg); \
   } while (0);
 
 // Return 'to_return' if 'to_call' returns a bad status.
 // The substitution for 'to_return' may reference the variable
 // 's' for the bad status.
-#define GESTALT_RETURN_NOT_OK_RET(to_call, to_return) do { \
-    ::gestalt::Status s = (to_call); \
+#define ARROW_RETURN_NOT_OK_RET(to_call, to_return) do { \
+    ::arrow::Status s = (to_call); \
     if (::gutil::PREDICT_FALSE(!s.ok())) return (to_return);    \
   } while (0);
 
 // If 'to_call' returns a bad status, CHECK immediately with a logged message
 // of 'msg' followed by the status.
-#define GESTALT_CHECK_OK_PREPEND(to_call, msg) do {         \
-::gestalt::Status _s = (to_call);                           \
-GESTALT_CHECK(_s.ok()) << (msg) << ": " << _s.ToString();   \
+#define ARROW_CHECK_OK_PREPEND(to_call, msg) do {         \
+::arrow::Status _s = (to_call);                           \
+ARROW_CHECK(_s.ok()) << (msg) << ": " << _s.ToString();   \
 } while (0);
 
 // If the status is bad, CHECK immediately, appending the status to the
 // logged message.
-#define GESTALT_CHECK_OK(s) GESTALT_CHECK_OK_PREPEND(s, "Bad status")
+#define ARROW_CHECK_OK(s) ARROW_CHECK_OK_PREPEND(s, "Bad status")
 
 // These are standard glog macros.
-#define GESTALT_LOG              LOG
-#define GESTALT_CHECK            CHECK
+#define ARROW_LOG              LOG
+#define ARROW_CHECK            CHECK
 
-namespace gestalt {
+namespace arrow {
 
 #define RETURN_NOT_OK(s) do {                   \
     Status _s = (s);                            \
@@ -168,7 +168,7 @@ const char* Status::CopyState(const char* state) {
   return result;
 }
 
-}  // namespace gestalt
+}  // namespace arrow
 
 
-#endif // GESTALT_STATUS_H_
+#endif // ARROW_STATUS_H_

@@ -12,17 +12,17 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-set(GESTALT_SRCS
+set(ARROW_SRCS
 )
 
 #######################################
 # Unit tests
 #######################################
 
-set(GESTALT_TEST_LINK_LIBS gestalt_test_util ${GESTALT_MIN_TEST_LIBS})
+set(ARROW_TEST_LINK_LIBS arrow_test_util ${ARROW_MIN_TEST_LIBS})
 
-ADD_GESTALT_TEST(types-test)
-ADD_GESTALT_TEST(memory-test)
-ADD_GESTALT_TEST(array-test)
-ADD_GESTALT_TEST(builder-test)
-ADD_GESTALT_TEST(util-test)
+ADD_ARROW_TEST(types-test)
+ADD_ARROW_TEST(memory-test)
+ADD_ARROW_TEST(array-test)
+ADD_ARROW_TEST(builder-test)
+ADD_ARROW_TEST(util-test)
