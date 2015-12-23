@@ -85,7 +85,7 @@ export LSAN_OPTIONS
 # Suppressions require symbolization. We'll default to using the symbolizer in
 # thirdparty.
 if [ -z "$ASAN_SYMBOLIZER_PATH" ]; then
-  export ASAN_SYMBOLIZER_PATH=$ROOT/thirdparty/installed/bin/llvm-symbolizer
+  export ASAN_SYMBOLIZER_PATH=$(find $NATIVE_TOOLCHAIN/llvm-3.7.0/bin -name llvm-symbolizer)
 fi
 
 # Allow for collecting core dumps.
@@ -111,7 +111,7 @@ for ATTEMPT_NUMBER in $(seq 1 $TEST_EXECUTION_ATTEMPTS) ; do
   echo "Running $TEST_NAME, redirecting output into $LOGFILE" \
     "(attempt ${ATTEMPT_NUMBER}/$TEST_EXECUTION_ATTEMPTS)"
   $TEST_EXECUTABLE "$@" 2>&1 \
-    | $ROOT/thirdparty/asan_symbolize.py \
+    | $ROOT/build-support/asan_symbolize.py \
     | c++filt \
     | $ROOT/build-support/stacktrace_addr2line.pl $TEST_EXECUTABLE \
     | $pipe_cmd > $LOGFILE

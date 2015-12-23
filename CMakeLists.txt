@@ -24,15 +24,57 @@ set(BUILD_SUPPORT_DIR ${CMAKE_CURRENT_SOURCE_DIR}/build-support)
 # Must be declared in the top-level CMakeLists.txt.
 set(CMAKE_SKIP_INSTALL_ALL_DEPENDENCY true)
 
-# Make sure thirdparty stuff is up-to-date.
-if ("$ENV{NO_REBUILD_THIRDPARTY}" STREQUAL "")
-  execute_process(
-    COMMAND ${CMAKE_SOURCE_DIR}/thirdparty/build-if-necessary.sh
-    RESULT_VARIABLE THIRDPARTY_SCRIPT_RESULT)
-  if (NOT (${THIRDPARTY_SCRIPT_RESULT} EQUAL 0))
-    message(FATAL_ERROR "Thirdparty was built unsuccessfully, terminating.")
+
+# Bootstrap thridparty dependencies
+if ("$ENV{DISABLE_NATIVE_TOOLCHAIN}" STREQUAL "")
+  # Enable toolchain variable if the environment is setup
+  set(NATIVE_TOOLCHAIN ON)
+  message(STATUS "Toolchain build.")
+
+  # If toolchain is not set, pick a directory
+  if ("$ENV{NATIVE_TOOLCHAIN}" STREQUAL "")
+    set(ENV{NATIVE_TOOLCHAIN} "${CMAKE_CURRENT_SOURCE_DIR}/toolchain")
   endif()
+
+  # Set the environment variables for dependent versions
+  set(ENV{GCC_VERSION} "4.9.2")
+  set(ENV{GFLAGS_VERSION} "2.0")
+  set(ENV{GLOG_VERSION} "0.3.3-p1")
+  set(ENV{GPERFTOOLS_VERSION} "2.3")
+  set(ENV{LIBUNWIND_VERSION} "1.1")
+  set(ENV{GOOGLETEST_VERSION} "20151222")
+
+  # Setting SYSTEM_GCC will use the toolchain dependencies compiled with the original
+  # host's compiler.
+  if ("$ENV{SYSTEM_GCC}" STREQUAL "")
+    set(GCC_ROOT $ENV{NATIVE_TOOLCHAIN}/gcc-$ENV{GCC_VERSION})
+    set(CMAKE_C_COMPILER ${GCC_ROOT}/bin/gcc)
+    set(CMAKE_CXX_COMPILER ${GCC_ROOT}/bin/g++)
+  endif()
+
+  # If the toolchain directory does not yet exists, we assume that the dependencies
+  # should be downloaded. If the download script is not available fail the
+  # configuration.
+  if (NOT IS_DIRECTORY $ENV{NATIVE_TOOLCHAIN})
+    set(BOOTSTRAP_CMD "${BUILD_SUPPORT_DIR}/bootstrap_toolchain.py")
+    # Download and unpack the dependencies
+    message(STATUS "Downloading and extracting dependencies.")
+    execute_process(COMMAND ${BOOTSTRAP_CMD} RESULT_VARIABLE BOOTSTRAP_RESULT)
+    if (${BOOTSTRAP_RESULT} EQUAL 0)
+      message(STATUS "Toolchain bootstrap complete.")
+    else()
+      message(FATAL_ERROR "Toolchain bootstrap failed.")
+    endif()
+  else()
+    message(STATUS "Native toolchain picked up at $ENV{NATIVE_TOOLCHAIN}")
+  endif()
+else()
+  set(NATIVE_TOOLCHAIN OFF)
+  message(STATUS "Native toolchain was explicitly disabled using DISABLE_NATIVE_TOOLCHAIN.")
+  message(STATUS "Assuming system search path for dependencies.")
 endif()
+
+project(arrow)
 
 # Generate a Clang compile_commands.json "compilation database" file for use
 # with various development tools, such as Vim's YouCompleteMe plugin.
@@ -252,7 +294,7 @@ if ("${ARROW_USE_UBSAN}" OR "${ARROW_USE_ASAN}" OR "${ARROW_USE_TSAN}")
     # symbol interception.
     if("${COMPILER_VERSION}" VERSION_LESS "3.4")
       message(SEND_ERROR "Must use clang 3.4 or newer to run a sanitizer build."
-        " Try using clang from thirdparty/")
+        " Try using clang from $NATIVE_TOOLCHAIN/")
     endif()
     add_definitions("-fsanitize-blacklist=${BUILD_SUPPORT_DIR}/sanitize-blacklist.txt")
   else()
@@ -330,17 +372,23 @@ endif()
 
 # set compile output directory
 string (TOLOWER ${CMAKE_BUILD_TYPE} BUILD_SUBDIR_NAME)
-set(BUILD_OUTPUT_ROOT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/build/${BUILD_SUBDIR_NAME}/")
 
-# Link build/latest to the current build directory, to avoid developers
-# accidentally running the latest debug build when in fact they're building
-# release builds.
-FILE(MAKE_DIRECTORY ${BUILD_OUTPUT_ROOT_DIRECTORY})
-if (NOT APPLE)
-  set(MORE_ARGS "-T")
-endif()
+# If build in-source, create the latest symlink. If build out-of-source, which is
+# preferred, simply output the binaries in the build folder
+if (${CMAKE_SOURCE_DIR} STREQUAL ${CMAKE_CURRENT_BINARY_DIR})
+  set(BUILD_OUTPUT_ROOT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/build/${BUILD_SUBDIR_NAME}/")
+  # Link build/latest to the current build directory, to avoid developers
+  # accidentally running the latest debug build when in fact they're building
+  # release builds.
+  FILE(MAKE_DIRECTORY ${BUILD_OUTPUT_ROOT_DIRECTORY})
+  if (NOT APPLE)
+    set(MORE_ARGS "-T")
+  endif()
 EXECUTE_PROCESS(COMMAND ln ${MORE_ARGS} -sf ${BUILD_OUTPUT_ROOT_DIRECTORY}
-  ${CMAKE_CURRENT_SOURCE_DIR}/build/latest)
+  ${CMAKE_CURRENT_BINARY_DIR}/build/latest)
+else()
+  set(BUILD_OUTPUT_ROOT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/${BUILD_SUBDIR_NAME}/")
+endif()
 
 # where to put generated archives (.a files)
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${BUILD_OUTPUT_ROOT_DIRECTORY}")
@@ -592,10 +640,6 @@ function(ADD_THIRDPARTY_LIB LIB_NAME)
   endif()
 endfunction()
 
-# Look in thirdparty/installed before anywhere else for system dependencies.
-set(THIRDPARTY_PREFIX ${CMAKE_SOURCE_DIR}/thirdparty/installed)
-set(CMAKE_PREFIX_PATH ${THIRDPARTY_PREFIX})
-
 ## GLog
 find_package(GLog REQUIRED)
 include_directories(SYSTEM ${GLOG_INCLUDE_DIR})
@@ -627,8 +671,7 @@ list(APPEND ARROW_BASE_LIBS gflags)
 find_package(GMock REQUIRED)
 include_directories(SYSTEM ${GMOCK_INCLUDE_DIR} ${GTEST_INCLUDE_DIR})
 ADD_THIRDPARTY_LIB(gmock
-  STATIC_LIB ${GMOCK_STATIC_LIBRARY}
-  SHARED_LIB ${GMOCK_SHARED_LIBRARY})
+  STATIC_LIB ${GMOCK_STATIC_LIBRARY})
 
 ## Google PerfTools
 ##
@@ -709,7 +752,7 @@ set(ARROW_TEST_LINK_LIBS ${ARROW_MIN_TEST_LIBS})
 # "make ctags" target
 ############################################################
 if (UNIX)
-  add_custom_target(ctags ctags -R --languages=c++,c --exclude=thirdparty/installed)
+  add_custom_target(ctags ctags -R --languages=c++,c)
 endif (UNIX)
 
 ############################################################
@@ -738,7 +781,7 @@ endif (UNIX)
 ############################################################
 if (UNIX)
   # Full lint
-  add_custom_target(lint ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/google-styleguide-r134/cpplint/cpplint.py
+  add_custom_target(lint ${BUILD_SUPPORT_DIR}/cpplint.py
   --verbose=4
   --filter=-whitespace/comments,-readability/todo,-build/header_guard,-build/include_order
     `find ${CMAKE_CURRENT_SOURCE_DIR}/src -name \\*.cc -or -name \\*.h`)

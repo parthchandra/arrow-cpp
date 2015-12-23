@@ -7,11 +7,11 @@
 #  GLOG_FOUND, whether glog has been found
 
 set(GLOG_SEARCH_HEADER_PATHS
-  ${CMAKE_SOURCE_DIR}/thirdparty/installed/include
+  $ENV{NATIVE_TOOLCHAIN}/glog-$ENV{GLOG_VERSION}/include
 )
 
 set(GLOG_SEARCH_LIB_PATH
-  ${CMAKE_SOURCE_DIR}/thirdparty/installed/lib
+  $ENV{NATIVE_TOOLCHAIN}/glog-$ENV{GLOG_VERSION}/lib
 )
 
 find_path(GLOG_INCLUDE_DIR glog/logging.h PATHS

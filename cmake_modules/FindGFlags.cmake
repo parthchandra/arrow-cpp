@@ -6,12 +6,12 @@
 #  GFLAGS_SHARED_LIB, path to libgflags' shared library
 #  GFLAGS_FOUND, whether gflags has been found
 
-set(GFLAGS_SEARCH_HEADER_PATHS  
-  ${THIRDPARTY_PREFIX}/include
+set(GFLAGS_SEARCH_HEADER_PATHS
+  $ENV{NATIVE_TOOLCHAIN}/gflags-$ENV{GFLAGS_VERSION}/include
 )
 
 set(GFLAGS_SEARCH_LIB_PATH
-  ${THIRDPARTY_PREFIX}/lib
+  $ENV{NATIVE_TOOLCHAIN}/gflags-$ENV{GFLAGS_VERSION}/lib
 )
 
 find_path(GFLAGS_INCLUDE_DIR gflags/gflags.h PATHS

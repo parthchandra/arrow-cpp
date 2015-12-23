@@ -34,7 +34,7 @@
 # also defined, but not for general use are
 # GMOCK_LIBRARY, where to find the GMock library.
 
-set(GMOCK_SEARCH_PATH ${CMAKE_SOURCE_DIR}/thirdparty/installed)
+set(GMOCK_SEARCH_PATH $ENV{NATIVE_TOOLCHAIN}/googletest-$ENV{GOOGLETEST_VERSION})
 
 set(GMOCK_H gmock/gmock.h)
 set(GTEST_H gtest/gtest.h)
@@ -62,18 +62,13 @@ if(GMOCK_INCLUDE_DIR AND GTEST_INCLUDE_DIR AND GMOCK_LIBRARY)
   if(EXISTS "${GMOCK_STATIC_LIBRARY}")
     set(GMOCK_FOUND TRUE)
   endif()
-
-  set(GMOCK_SHARED_LIBRARY ${GMOCK_SEARCH_PATH}/lib/${GMOCK_LIB_NAME}${CMAKE_SHARED_LIBRARY_SUFFIX})
-  if(EXISTS "${GMOCK_SHARED_LIBRARY}")
-    set(GMOCK_FOUND TRUE)
-  endif()
 else()
   set(GMOCK_FOUND FALSE)
 endif()
 
 if(GMOCK_FOUND)
   if(NOT GMock_FIND_QUIETLY)
-    message(STATUS "Found the GMock library: ${GMOCK_STATIC_LIBRARY} ${GMOCK_SHARED_LIBRARY}")
+    message(STATUS "Found the GMock library: ${GMOCK_STATIC_LIBRARY}")
   endif(NOT GMock_FIND_QUIETLY)
 else(GMOCK_FOUND)
   if(NOT GMock_FIND_QUIETLY)
@@ -89,5 +84,4 @@ mark_as_advanced(
   GMOCK_INCLUDE_DIR
   GTEST_INCLUDE_DIR
   GMOCK_STATIC_LIBRARY
-  GMOCK_SHARED_LIBRARY)
-
+)
