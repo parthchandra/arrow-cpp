@@ -7,11 +7,11 @@
 #  GLOG_FOUND, whether glog has been found
 
 set(GLOG_SEARCH_HEADER_PATHS
-  $ENV{NATIVE_TOOLCHAIN}/glog-$ENV{GLOG_VERSION}/include
+  $ENV{GLOG_PREFIX}/include
 )
 
 set(GLOG_SEARCH_LIB_PATH
-  $ENV{NATIVE_TOOLCHAIN}/glog-$ENV{GLOG_VERSION}/lib
+  $ENV{GLOG_PREFIX}/lib
 )
 
 find_path(GLOG_INCLUDE_DIR glog/logging.h PATHS

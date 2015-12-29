@@ -34,7 +34,7 @@
 # also defined, but not for general use are
 # GMOCK_LIBRARY, where to find the GMock library.
 
-set(GMOCK_SEARCH_PATH $ENV{NATIVE_TOOLCHAIN}/googletest-$ENV{GOOGLETEST_VERSION})
+set(GMOCK_SEARCH_PATH $ENV{GOOGLETEST_PREFIX})
 
 set(GMOCK_H gmock/gmock.h)
 set(GTEST_H gtest/gtest.h)

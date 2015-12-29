@@ -137,7 +137,7 @@ struct DataType {
   TypeEnum type;
   bool nullable;
 
-  DataType(TypeEnum type, bool nullable = true)
+  explicit DataType(TypeEnum type, bool nullable = true)
       : type(type), nullable(nullable) {}
 
   virtual std::string ToString() const = 0;
@@ -165,7 +165,7 @@ struct CharType : public DataType {
 
   BytesType physical_type;
 
-  CharType(size_t size, bool nullable = true)
+  explicit CharType(size_t size, bool nullable = true)
       : DataType(TypeEnum::CHAR, nullable),
         size(size),
         physical_type(BytesType(size)) {}
@@ -186,7 +186,7 @@ struct VarcharType : public DataType {
 
   BytesType physical_type;
 
-  VarcharType(size_t size, bool nullable = true)
+  explicit VarcharType(size_t size, bool nullable = true)
       : DataType(TypeEnum::VARCHAR, nullable),
         size(size),
         physical_type(BytesType(size + 1)) {}
@@ -214,7 +214,7 @@ struct ListType : public DataType {
   // List can contain any other logical value type
   TypePtr value_type;
 
-  ListType(const TypePtr& value_type,
+  explicit ListType(const TypePtr& value_type,
       bool nullable = true)
       : DataType(TypeEnum::LIST, nullable),
         value_type(value_type) {}
@@ -271,7 +271,7 @@ struct DateType : public DataType {
 
   Unit unit;
 
-  DateType(Unit unit = Unit::DAY, bool nullable = true)
+  explicit DateType(Unit unit = Unit::DAY, bool nullable = true)
       : DataType(TypeEnum::DATE, nullable),
         unit(unit) {}
 
@@ -299,7 +299,7 @@ struct TimestampType : public DataType {
 
   Unit unit;
 
-  TimestampType(Unit unit = Unit::MILLI, bool nullable = true)
+  explicit TimestampType(Unit unit = Unit::MILLI, bool nullable = true)
       : DataType(TypeEnum::TIMESTAMP, nullable),
         unit(unit) {}
 
@@ -475,7 +475,7 @@ struct JSONScalar : public DataType {
   static TypePtr dense_type;
   static TypePtr sparse_type;
 
-  JSONScalar(bool dense = true, bool nullable = true)
+  explicit JSONScalar(bool dense = true, bool nullable = true)
       : DataType(TypeEnum::JSON_SCALAR, nullable),
         dense(dense) {}
 };

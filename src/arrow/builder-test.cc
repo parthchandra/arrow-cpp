@@ -170,7 +170,7 @@ TYPED_TEST_CASE(TestPrimitiveBuilder, Primitives);
 
 #define PLIFT_TYPEDEFS()                                \
   typedef typename TestFixture::T T;                    \
-  typedef typename TestFixture::ArrayType ArrayType;
+  // typedef typename TestFixture::ArrayType ArrayType;
 
 
 TYPED_TEST(TestPrimitiveBuilder, TestInit) {
@@ -200,8 +200,6 @@ TYPED_TEST(TestPrimitiveBuilder, TestDestructor) {
 
 
 TYPED_TEST(TestPrimitiveBuilder, TestAppendNull) {
-  PLIFT_TYPEDEFS();
-
   size_t size = 10000;
   for (int i = 0; i < size; ++i) {
     ASSERT_OK(this->builder_->AppendNull());

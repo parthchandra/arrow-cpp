@@ -53,7 +53,7 @@ class Array {
 
   void Init(const TypePtr& type, size_t length, Buffer* nulls) {
     type_ = type;
-    length_= length;
+    length_ = length;
     nulls_ = nulls;
 
     nullable_ = type->nullable;

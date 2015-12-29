@@ -136,7 +136,7 @@ class DataContainer {
 // TODO: configurable garbage collection strategies
 class MemoryPool {
  public:
-  MemoryPool(size_t maximum_bytes = static_cast<size_t>(-1))
+  explicit MemoryPool(size_t maximum_bytes = static_cast<size_t>(-1))
       : total_bytes_(0),
         maximum_bytes_(maximum_bytes) {}
 
