@@ -6,13 +6,8 @@
 #  GLOG_SHARED_LIB, path to libglog's shared library
 #  GLOG_FOUND, whether glog has been found
 
-set(GLOG_SEARCH_HEADER_PATHS
-  $ENV{GLOG_PREFIX}/include
-)
-
-set(GLOG_SEARCH_LIB_PATH
-  $ENV{GLOG_PREFIX}/lib
-)
+set(GLOG_SEARCH_HEADER_PATHS $ENV{GLOG_PREFIX}/include)
+set(GLOG_SEARCH_LIB_PATH $ENV{GLOG_PREFIX}/lib)
 
 find_path(GLOG_INCLUDE_DIR glog/logging.h PATHS
   ${GLOG_SEARCH_HEADER_PATHS}

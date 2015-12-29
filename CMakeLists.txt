@@ -352,6 +352,7 @@ set(LIBRARY_OUTPUT_DIRECTORY "${BUILD_OUTPUT_ROOT_DIRECTORY}")
 
 # where to put generated binaries
 set(EXECUTABLE_OUTPUT_PATH "${BUILD_OUTPUT_ROOT_DIRECTORY}")
+
 include_directories(src)
 
 ############################################################
@@ -739,7 +740,6 @@ if (UNIX)
     `find ${CMAKE_CURRENT_SOURCE_DIR}/src -name \\*.cc -or -name \\*.h`)
 endif (UNIX)
 
-
 ############################################################
 # Subdirectories
 ############################################################
@@ -747,13 +747,14 @@ endif (UNIX)
 add_subdirectory(src/arrow)
 add_subdirectory(src/arrow/util)
 
-
 set(LINK_LIBS
   arrow_util)
-
 
 ADD_EXPORTABLE_LIBRARY(arrow
   SRCS ${ARROW_SRCS}
   DEPS ${LINK_LIBS})
 set_target_properties(arrow PROPERTIES LINKER_LANGUAGE CXX)
 set_target_properties(arrow_exported PROPERTIES LINKER_LANGUAGE CXX)
+
+install(TARGETS arrow
+  LIBRARY DESTINATION lib)

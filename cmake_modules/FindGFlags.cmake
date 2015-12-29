@@ -6,8 +6,6 @@
 #  GFLAGS_SHARED_LIB, path to libgflags' shared library
 #  GFLAGS_FOUND, whether gflags has been found
 
-message(STATUS "FOO: $ENV{GFLAGS_PREFIX}")
-
 set(GFLAGS_SEARCH_HEADER_PATHS
   $ENV{GFLAGS_PREFIX}/include
 )

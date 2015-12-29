@@ -13,7 +13,18 @@
 # limitations under the License.
 
 set(ARROW_SRCS
+
 )
+
+# Headers: top level
+install(FILES
+  array.h
+  builder.h
+  memory.h
+  status.h
+  types.h
+  util.h
+  DESTINATION include/arrow)
 
 #######################################
 # Unit tests
