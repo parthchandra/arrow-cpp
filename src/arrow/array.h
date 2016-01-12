@@ -20,10 +20,12 @@
 #include <string>
 #include <vector>
 
-#include "arrow/status.h"
 #include "arrow/memory.h"
 #include "arrow/types.h"
-#include "arrow/util.h"
+
+#include "arrow/util/bit-util.h"
+#include "arrow/util/macros.h"
+#include "arrow/util/status.h"
 
 namespace arrow {
 
@@ -51,20 +53,7 @@ class Array {
     }
   }
 
-  void Init(const TypePtr& type, size_t length, Buffer* nulls) {
-    type_ = type;
-    length_= length;
-    nulls_ = nulls;
-
-    nullable_ = type->nullable;
-    if (nulls != nullptr) {
-      null_bits_ = nulls->data();
-    }
-  }
-
-  // Non-copyable
-  Array(const Array& buf) = delete;
-  Array& operator=(Array& other) = delete;
+  void Init(const TypePtr& type, size_t length, Buffer* nulls);
 
   // Determine if a slot if null. For inner loops. Does *not* boundscheck
   bool IsNull(size_t i) const {
@@ -85,6 +74,8 @@ class Array {
 
   Buffer* nulls_;
   const uint8_t* null_bits_;
+
+  DISALLOW_COPY_AND_ASSIGN(Array);
 };
 
 
@@ -103,26 +94,11 @@ class PrimitiveArray : public Array {
   }
 
   void Init(const TypePtr& type, size_t length, Buffer* data,
-      Buffer* nulls = nullptr) {
-    Array::Init(type, length, nulls);
-    data_ = data;
-    raw_data_ = data == nullptr? nullptr : data_->data();
-  }
+      Buffer* nulls = nullptr);
 
   Buffer* data() const { return data_;}
 
-  bool Equals(const PrimitiveArray& other) const {
-    if (this == &other) return true;
-    if (type_->nullable != other.type_->nullable) return false;
-
-    bool equal_data = data_->Equals(*other.data_, length_);
-    if (type_->nullable) {
-      return equal_data &&
-        nulls_->Equals(*other.nulls_, util::ceil_byte(length_) / 8);
-    } else {
-      return equal_data;
-    }
-  }
+  bool Equals(const PrimitiveArray& other) const;
 
  protected:
   Buffer* data_;
@@ -161,139 +137,6 @@ class PrimitiveArrayImpl : public PrimitiveArray {
   }
 };
 
-
-typedef PrimitiveArrayImpl<UInt8Type> UInt8Array;
-typedef PrimitiveArrayImpl<Int8Type> Int8Array;
-
-typedef PrimitiveArrayImpl<UInt16Type> UInt16Array;
-typedef PrimitiveArrayImpl<Int16Type> Int16Array;
-
-typedef PrimitiveArrayImpl<UInt32Type> UInt32Array;
-typedef PrimitiveArrayImpl<Int32Type> Int32Array;
-
-typedef PrimitiveArrayImpl<UInt64Type> UInt64Array;
-typedef PrimitiveArrayImpl<Int64Type> Int64Array;
-
-typedef PrimitiveArrayImpl<FloatType> FloatArray;
-typedef PrimitiveArrayImpl<DoubleType> DoubleArray;
-
-
-class ListArray : public Array {
- public:
-  ListArray() : Array(), offset_buf_(nullptr), offsets_(nullptr) {}
-
-  ListArray(const TypePtr& type, size_t length, Buffer* offsets,
-      const ArrayPtr& values, Buffer* nulls = nullptr) {
-    Init(type, length, offsets, values, nulls);
-  }
-
-  virtual ~ListArray() {
-    if (offset_buf_ != nullptr) {
-      offset_buf_->Decref();
-    }
-  }
-
-  void Init(const TypePtr& type, size_t length, Buffer* offsets,
-      const ArrayPtr& values, Buffer* nulls = nullptr) {
-    offset_buf_ = offsets;
-    offsets_ = offsets == nullptr? nullptr :
-      reinterpret_cast<const int32_t*>(offset_buf_->data());
-
-    values_ = values;
-    Array::Init(type, length, nulls);
-  }
-
-  // Return a shared pointer in case the requestor desires to share ownership
-  // with this array.
-  const ArrayPtr& values() const {return values_;}
-
-  const int32_t* offsets() const { return offsets_;}
-
-  int32_t offset(size_t i) const { return offsets_[i];}
-
-  // Neither of these functions will perform boundschecking
-  int32_t value_offset(size_t i) { return offsets_[i];}
-  size_t value_length(size_t i) { return offsets_[i + 1] - offsets_[i];}
-
- protected:
-  Buffer* offset_buf_;
-  const int32_t* offsets_;
-  ArrayPtr values_;
-};
-
-
-// TODO: add a BinaryArray layer in between
-class StringArray : public ListArray {
- public:
-  StringArray() : ListArray(), bytes_(nullptr), raw_bytes_(nullptr) {}
-
-  StringArray(size_t length, Buffer* offsets, const ArrayPtr& values,
-      Buffer* nulls = nullptr) {
-    Init(length, offsets, values, nulls);
-  }
-
-  void Init(const TypePtr& type, size_t length, Buffer* offsets, const ArrayPtr& values,
-      Buffer* nulls = nullptr) {
-    ListArray::Init(type, length, offsets, values, nulls);
-
-    // TODO: type validation for values array
-
-    // For convenience
-    bytes_ = static_cast<UInt8Array*>(values.get());
-    raw_bytes_ = bytes_->raw_data();
-  }
-
-  void Init(size_t length, Buffer* offsets, const ArrayPtr& values,
-      Buffer* nulls = nullptr) {
-    TypePtr type(new StringType(nulls != nullptr));
-    Init(type, length, offsets, values, nulls);
-  }
-
-  // Compute the pointer t
-  const uint8_t* GetValue(size_t i, size_t* out_length) const {
-    int32_t pos = offsets_[i];
-    *out_length = offsets_[i + 1] - pos;
-    return raw_bytes_ + pos;
-  }
-
-  // Construct a std::string
-  std::string GetString(size_t i) const {
-    size_t nchars;
-    const uint8_t* str = GetValue(i, &nchars);
-    return std::string(reinterpret_cast<const char*>(str), nchars);
-  }
-
- private:
-  UInt8Array* bytes_;
-  const uint8_t* raw_bytes_;
-};
-
-
-class UnionArray : public Array {
- public:
-  UnionArray() : Array() {}
-
- protected:
-  // The data are types encoded as int16
-  Buffer* types_;
-  std::vector<std::shared_ptr<Array> > children_;
-};
-
-
-class DenseUnionArray : public UnionArray {
-
- public:
-  DenseUnionArray() : UnionArray() {}
-
- protected:
-  Buffer* offset_buf_;
-};
-
-
-class SparseUnionArray : public UnionArray {
- public:
-  SparseUnionArray() : UnionArray() {}
-};
 
 } // namespace arrow
 

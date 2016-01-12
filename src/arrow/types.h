@@ -137,7 +137,7 @@ struct DataType {
   TypeEnum type;
   bool nullable;
 
-  DataType(TypeEnum type, bool nullable = true)
+  explicit DataType(TypeEnum type, bool nullable = true)
       : type(type), nullable(nullable) {}
 
   virtual std::string ToString() const = 0;
@@ -160,46 +160,6 @@ struct BytesType : public LayoutType {
 };
 
 
-struct CharType : public DataType {
-  size_t size;
-
-  BytesType physical_type;
-
-  CharType(size_t size, bool nullable = true)
-      : DataType(TypeEnum::CHAR, nullable),
-        size(size),
-        physical_type(BytesType(size)) {}
-  CharType(const CharType& other)
-      : CharType(other.size, other.nullable) {}
-
-  virtual std::string ToString() const {
-    std::stringstream s;
-    s << "char(" << size << ")";
-    return s.str();
-  }
-};
-
-
-// Variable-length, null-terminated strings, up to a certain length
-struct VarcharType : public DataType {
-  size_t size;
-
-  BytesType physical_type;
-
-  VarcharType(size_t size, bool nullable = true)
-      : DataType(TypeEnum::VARCHAR, nullable),
-        size(size),
-        physical_type(BytesType(size + 1)) {}
-  VarcharType(const VarcharType& other)
-      : VarcharType(other.size, other.nullable) {}
-
-  virtual std::string ToString() const {
-    std::stringstream s;
-    s << "varchar(" << size << ")";
-    return s.str();
-  }
-};
-
 
 struct ListLayoutType : public LayoutType {
   LayoutPtr value_type;
@@ -210,118 +170,11 @@ struct ListLayoutType : public LayoutType {
 };
 
 
-struct ListType : public DataType {
-  // List can contain any other logical value type
-  TypePtr value_type;
-
-  ListType(const TypePtr& value_type,
-      bool nullable = true)
-      : DataType(TypeEnum::LIST, nullable),
-        value_type(value_type) {}
-
-  static char const *name() {
-    return "list";
-  }
-
-  virtual std::string ToString() const {
-    std::stringstream s;
-    s << "list<" << value_type->ToString() << ">";
-    return s.str();
-  }
-};
-
-
 static const LayoutPtr byte1(new BytesType(1));
 static const LayoutPtr byte2(new BytesType(2));
 static const LayoutPtr byte4(new BytesType(4));
 static const LayoutPtr byte8(new BytesType(8));
 static const LayoutPtr physical_string = LayoutPtr(new ListLayoutType(byte1));
-
-
-// String is a logical type consisting of a physical list of 1-byte values
-struct StringType : public DataType {
-
-  explicit StringType(bool nullable = true)
-      : DataType(TypeEnum::STRING, nullable) {}
-
-  StringType(const StringType& other)
-      : StringType(other.nullable) {}
-
-  const LayoutPtr& physical_type() {
-    return physical_string;
-  }
-
-  static char const *name() {
-    return "string";
-  }
-
-  virtual std::string ToString() const {
-    return name();
-  }
-};
-
-
-struct DateType : public DataType {
-
-  enum class Unit: char {
-    DAY = 0,
-    MONTH = 1,
-    YEAR = 2
-  };
-
-  Unit unit;
-
-  DateType(Unit unit = Unit::DAY, bool nullable = true)
-      : DataType(TypeEnum::DATE, nullable),
-        unit(unit) {}
-
-  DateType(const DateType& other)
-      : DateType(other.unit, other.nullable) {}
-
-  static char const *name() {
-    return "date";
-  }
-
-  // virtual std::string ToString() {
-  //   return name();
-  // }
-};
-
-
-struct TimestampType : public DataType {
-
-  enum class Unit: char {
-    SECOND = 0,
-    MILLI = 1,
-    MICRO = 2,
-    NANO = 3
-  };
-
-  Unit unit;
-
-  TimestampType(Unit unit = Unit::MILLI, bool nullable = true)
-      : DataType(TypeEnum::TIMESTAMP, nullable),
-        unit(unit) {}
-
-  TimestampType(const TimestampType& other)
-      : TimestampType(other.unit, other.nullable) {}
-
-  static char const *name() {
-    return "timestamp";
-  }
-
-  // virtual std::string ToString() {
-  //   return name();
-  // }
-};
-
-
-struct DecimalType : public DataType {
-
-  size_t precision;
-  size_t scale;
-
-};
 
 
 template <typename Derived>
@@ -352,50 +205,6 @@ struct NullType : public PrimitiveType<NullType> {
   PRIMITIVE_DECL(NullType, void, NA, 0, "null");
 };
 
-struct UInt8Type : public PrimitiveType<UInt8Type> {
-  PRIMITIVE_DECL(UInt8Type, uint8_t, UINT8, 1, "uint8");
-};
-
-struct Int8Type : public PrimitiveType<Int8Type> {
-  PRIMITIVE_DECL(Int8Type, int8_t, INT8, 1, "int8");
-};
-
-struct UInt16Type : public PrimitiveType<UInt16Type> {
-  PRIMITIVE_DECL(UInt16Type, uint16_t, UINT16, 2, "uint16");
-};
-
-struct Int16Type : public PrimitiveType<Int16Type> {
-  PRIMITIVE_DECL(Int16Type, int16_t, INT16, 2, "int16");
-};
-
-struct UInt32Type : public PrimitiveType<UInt32Type> {
-  PRIMITIVE_DECL(UInt32Type, uint32_t, UINT32, 4, "uint32");
-};
-
-struct Int32Type : public PrimitiveType<Int32Type> {
-  PRIMITIVE_DECL(Int32Type, int32_t, INT32, 4, "int32");
-};
-
-struct UInt64Type : public PrimitiveType<UInt64Type> {
-  PRIMITIVE_DECL(UInt64Type, uint64_t, UINT64, 8, "uint64");
-};
-
-struct Int64Type : public PrimitiveType<Int64Type> {
-  PRIMITIVE_DECL(Int64Type, int64_t, INT64, 8, "int64");
-};
-
-struct FloatType : public PrimitiveType<FloatType> {
-  PRIMITIVE_DECL(FloatType, float, FLOAT, 4, "float");
-};
-
-struct DoubleType : public PrimitiveType<DoubleType> {
-  PRIMITIVE_DECL(DoubleType, double, DOUBLE, 8, "double");
-};
-
-struct BooleanType : public PrimitiveType<BooleanType> {
-  PRIMITIVE_DECL(BooleanType, uint8_t, BOOL, 1, "bool");
-};
-
 
 template <TypeEnum T>
 struct CollectionType : public DataType {
@@ -411,85 +220,6 @@ struct CollectionType : public DataType {
     return child_types_.size();
   }
 };
-
-
-struct StructType : public CollectionType<TypeEnum::STRUCT> {
-
-  typedef CollectionType<TypeEnum::STRUCT> Base;
-
-  StructType(const std::vector<TypePtr>& child_types,
-      bool nullable = true)
-      : Base(nullable) {
-    child_types_ = child_types;
-  }
-};
-
-static inline std::string format_union(const std::vector<TypePtr>& child_types) {
-  std::stringstream s;
-  s << "union<";
-  for (int i = 0; i < child_types.size(); ++i) {
-    if (i) s << ", ";
-    s << child_types[i]->ToString();
-  }
-  s << ">";
-  return s.str();
-}
-
-
-struct DenseUnionType : public CollectionType<TypeEnum::DENSE_UNION> {
-
-  typedef CollectionType<TypeEnum::DENSE_UNION> Base;
-
-  DenseUnionType(const std::vector<TypePtr>& child_types,
-      bool nullable = true)
-      : Base(nullable) {
-    child_types_ = child_types;
-  }
-
-  virtual std::string ToString() const {
-    return format_union(child_types_);
-  }
-};
-
-
-struct SparseUnionType : public CollectionType<TypeEnum::SPARSE_UNION> {
-
-  typedef CollectionType<TypeEnum::SPARSE_UNION> Base;
-
-  SparseUnionType(const std::vector<TypePtr>& child_types,
-      bool nullable = true)
-      : Base(nullable) {
-    child_types_ = child_types;
-  }
-
-  virtual std::string ToString() const {
-    return format_union(child_types_);
-  }
-};
-
-
-struct JSONScalar : public DataType {
-
-  bool dense;
-
-  static TypePtr dense_type;
-  static TypePtr sparse_type;
-
-  JSONScalar(bool dense = true, bool nullable = true)
-      : DataType(TypeEnum::JSON_SCALAR, nullable),
-        dense(dense) {}
-};
-
-static const TypePtr Null(new NullType());
-static const TypePtr Int32(new Int32Type());
-static const TypePtr String(new StringType());
-static const TypePtr Double(new DoubleType());
-static const TypePtr Bool(new BooleanType());
-
-static const std::vector<TypePtr> json_types = {Null, Int32, String,
-                                                Double, Bool};
-TypePtr JSONScalar::dense_type = TypePtr(new DenseUnionType(json_types));
-TypePtr JSONScalar::sparse_type = TypePtr(new SparseUnionType(json_types));
 
 
 } // namespace arrow

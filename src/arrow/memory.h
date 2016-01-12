@@ -19,9 +19,10 @@
 
 #include <cstdint>
 #include <cstdlib>
+#include <cstring>
 #include <unordered_map>
 
-#include "arrow/status.h"
+#include "arrow/util/status.h"
 
 namespace arrow {
 
@@ -103,9 +104,6 @@ class Buffer {
   static size_t id_gen_;
 };
 
-size_t Buffer::id_gen_ = 0;
-
-
 class BitBuffer : protected Buffer {
  private:
   bool IsSet(size_t i) const {
@@ -136,7 +134,7 @@ class DataContainer {
 // TODO: configurable garbage collection strategies
 class MemoryPool {
  public:
-  MemoryPool(size_t maximum_bytes = static_cast<size_t>(-1))
+  explicit MemoryPool(size_t maximum_bytes = static_cast<size_t>(-1))
       : total_bytes_(0),
         maximum_bytes_(maximum_bytes) {}
 
@@ -265,13 +263,6 @@ inline void Buffer::Decref() {
     // Self-destruct
     delete this;
   }
-}
-
-Status Buffer::Resize(size_t new_size) {
-  if (pool_ == nullptr) {
-    return Status::Invalid("no memory allocator");
-  }
-  return static_cast<MemoryPool*>(pool_)->Resize(this, new_size);
 }
 
 } // namespace arrow

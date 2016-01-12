@@ -16,12 +16,15 @@
 #include <memory>
 #include <string>
 
-#include <gflags/gflags.h>
 #include <gtest/gtest.h>
 
 #include "arrow/builder.h"
 #include "arrow/memory.h"
 #include "arrow/test-util.h"
+
+#include "arrow/types/integer.h"
+#include "arrow/types/list.h"
+#include "arrow/types/string.h"
 
 using std::string;
 using std::unique_ptr;

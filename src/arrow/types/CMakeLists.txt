@@ -1,4 +1,4 @@
-# Copyright 2014 Cloudera, Inc.
+# Copyright 2016 Cloudera, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,22 +12,36 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+#######################################
+# arrow_types
+#######################################
+
+set(TYPES_SRCS
+  json.cc
+  list.cc
+  string.cc
+  union.cc
+)
+
+set(TYPES_LIBS
+)
+
+add_library(arrow_types STATIC
+  ${TYPES_SRCS}
+)
+target_link_libraries(arrow_types ${TYPES_LIBS})
+SET_TARGET_PROPERTIES(arrow_types PROPERTIES LINKER_LANGUAGE CXX)
+
 # Headers: top level
 install(FILES
-  api.h
-  array.h
-  builder.h
-  memory.h
-  types.h
-  DESTINATION include/arrow)
-
-#######################################
-# Unit tests
-#######################################
-
-set(ARROW_TEST_LINK_LIBS arrow_test_util ${ARROW_MIN_TEST_LIBS})
-
-ADD_ARROW_TEST(types-test)
-ADD_ARROW_TEST(memory-test)
-ADD_ARROW_TEST(array-test)
-ADD_ARROW_TEST(builder-test)
+  boolean.h
+  datetime.h
+  decimal.h
+  floating.h
+  integer.h
+  json.h
+  list.h
+  string.h
+  struct.h
+  union.h
+  DESTINATION include/arrow/types)

@@ -6,3 +6,16 @@ Makefile
 cmake_install.cmake
 build/
 Testing/
+
+#########################################
+# Editor temporary/working/backup files #
+.#*
+*\#*\#
+[#]*#
+*~
+*$
+*.bak
+*flymake*
+*.kdev4
+*.log
+*.swp

@@ -1,4 +1,4 @@
-# Copyright 2014 Cloudera, Inc.
+# Copyright 2016 Cloudera, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -17,30 +17,25 @@
 #######################################
 
 set(UTIL_SRCS
+  bit-util.cc
+  status.cc
 )
 
-
-# boost_system
-# boost_thread
-
 set(UTIL_LIBS
-  glog
   rt)
 
-# We use MallocExtension and HeapChecker, but not in the exported version of
-# the library.
-set(EXPORTED_UTIL_LIBS ${UTIL_LIBS})
-if(${ARROW_TCMALLOC_AVAILABLE})
-  list(APPEND UTIL_LIBS tcmalloc)
-endif()
-
-ADD_EXPORTABLE_LIBRARY(arrow_util
-  SRCS ${UTIL_SRCS}
-  DEPS ${UTIL_LIBS}
-  EXPORTED_DEPS ${EXPORTED_UTIL_LIBS})
-
+add_library(arrow_util STATIC
+  ${UTIL_SRCS}
+)
+target_link_libraries(arrow_util ${UTIL_LIBS})
 SET_TARGET_PROPERTIES(arrow_util PROPERTIES LINKER_LANGUAGE CXX)
-SET_TARGET_PROPERTIES(arrow_util_exported PROPERTIES LINKER_LANGUAGE CXX)
+
+# Headers: top level
+install(FILES
+  bit-util.h
+  macros.h
+  status.h
+  DESTINATION include/arrow/util)
 
 #######################################
 # arrow_test_util
@@ -48,8 +43,6 @@ SET_TARGET_PROPERTIES(arrow_util_exported PROPERTIES LINKER_LANGUAGE CXX)
 
 add_library(arrow_test_util)
 target_link_libraries(arrow_test_util
-  gflags
-  glog
   gmock
   arrow_util)
 
@@ -62,10 +55,10 @@ SET_TARGET_PROPERTIES(arrow_test_util PROPERTIES LINKER_LANGUAGE CXX)
 add_library(arrow_test_main
   test_main.cc)
 target_link_libraries(arrow_test_main
-  gflags
-  glog
   gmock
   arrow_util
   arrow_test_util
   dl
   rt)
+
+ADD_ARROW_TEST(bit-util-test)

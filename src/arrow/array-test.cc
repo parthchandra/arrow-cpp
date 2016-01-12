@@ -16,12 +16,14 @@
 #include <memory>
 #include <string>
 
-#include <gflags/gflags.h>
 #include <gtest/gtest.h>
 
 #include "arrow/array.h"
 #include "arrow/memory.h"
 #include "arrow/test-util.h"
+
+#include "arrow/types/integer.h"
+#include "arrow/types/string.h"
 
 using std::string;
 using std::vector;

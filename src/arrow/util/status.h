@@ -15,9 +15,9 @@
 #ifndef ARROW_STATUS_H_
 #define ARROW_STATUS_H_
 
+#include <assert.h>
 #include <string>
-
-#include <glog/logging.h>
+#include <cstring>
 
 // Return the given status if it is not OK.
 #define ARROW_RETURN_NOT_OK(s) do {           \
@@ -50,10 +50,6 @@ ARROW_CHECK(_s.ok()) << (msg) << ": " << _s.ToString();   \
 // If the status is bad, CHECK immediately, appending the status to the
 // logged message.
 #define ARROW_CHECK_OK(s) ARROW_CHECK_OK_PREPEND(s, "Bad status")
-
-// These are standard glog macros.
-#define ARROW_LOG              LOG
-#define ARROW_CHECK            CHECK
 
 namespace arrow {
 
@@ -140,6 +136,7 @@ class Status {
 inline Status::Status(const Status& s) {
   state_ = (s.state_ == NULL) ? NULL : CopyState(s.state_);
 }
+
 inline void Status::operator=(const Status& s) {
   // The following condition catches both aliasing (when this == &s),
   // and the common case where both s and *this are ok.
@@ -147,25 +144,6 @@ inline void Status::operator=(const Status& s) {
     delete[] state_;
     state_ = (s.state_ == NULL) ? NULL : CopyState(s.state_);
   }
-}
-
-Status::Status(StatusCode code, const std::string& msg, int16_t posix_code) {
-  assert(code != StatusCode::OK);
-  const uint32_t size = msg.size();
-  char* result = new char[size + 7];
-  memcpy(result, &size, sizeof(size));
-  result[4] = static_cast<char>(code);
-  memcpy(result + 5, &posix_code, sizeof(posix_code));
-  memcpy(result + 7, msg.c_str(), msg.size());
-  state_ = result;
-}
-
-const char* Status::CopyState(const char* state) {
-  uint32_t size;
-  memcpy(&size, state, sizeof(size));
-  char* result = new char[size + 7];
-  memcpy(result, state, size + 7);
-  return result;
 }
 
 }  // namespace arrow

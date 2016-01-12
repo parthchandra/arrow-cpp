@@ -14,10 +14,15 @@
 
 #include <string>
 
-#include <gflags/gflags.h>
 #include <gtest/gtest.h>
 
 #include "arrow/types.h"
+
+#include "arrow/types/boolean.h"
+#include "arrow/types/floating.h"
+#include "arrow/types/integer.h"
+#include "arrow/types/list.h"
+#include "arrow/types/string.h"
 
 using std::string;
 

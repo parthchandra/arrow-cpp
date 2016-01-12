@@ -17,7 +17,7 @@
 
 #include <gtest/gtest.h>
 
-#include "arrow/util.h"
+#include "arrow/util/bit-util.h"
 
 namespace arrow {
 

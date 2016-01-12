@@ -19,13 +19,13 @@
 #include <string>
 #include <vector>
 
-#include <gflags/gflags.h>
 #include <gtest/gtest.h>
 
 #include "arrow/memory.h"
-#include "arrow/status.h"
+
+#include "arrow/util/bit-util.h"
 #include "arrow/util/random.h"
-#include "arrow/util.h"
+#include "arrow/util/status.h"
 
 #define ASSERT_RAISES(ENUM, expr)               \
   do {                                          \

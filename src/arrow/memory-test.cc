@@ -16,7 +16,6 @@
 #include <memory>
 #include <string>
 
-#include <gflags/gflags.h>
 #include <gtest/gtest.h>
 
 #include "arrow/memory.h"

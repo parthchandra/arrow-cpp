@@ -21,10 +21,16 @@
 #include <vector>
 
 #include "arrow/array.h"
-#include "arrow/status.h"
 #include "arrow/types.h"
 #include "arrow/memory.h"
-#include "arrow/util.h"
+
+#include "arrow/util/bit-util.h"
+#include "arrow/util/status.h"
+
+#include "arrow/types/floating.h"
+#include "arrow/types/integer.h"
+#include "arrow/types/list.h"
+#include "arrow/types/string.h"
 
 namespace arrow {
 
