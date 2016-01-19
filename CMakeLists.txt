@@ -352,7 +352,7 @@ function(ADD_THIRDPARTY_LIB LIB_NAME)
 endfunction()
 
 ## GMock
-find_package(GMock REQUIRED)
+find_package(GMock )
 include_directories(SYSTEM ${GMOCK_INCLUDE_DIR} ${GTEST_INCLUDE_DIR})
 ADD_THIRDPARTY_LIB(gmock
   STATIC_LIB ${GMOCK_STATIC_LIBRARY})
@@ -361,7 +361,7 @@ ADD_THIRDPARTY_LIB(gmock
 ##
 ## Disabled with TSAN/ASAN as well as with gold+dynamic linking (see comment
 ## near definition of ARROW_USING_GOLD).
-find_package(GPerf REQUIRED)
+find_package(GPerf )
 if (NOT "${ARROW_USE_ASAN}" AND
     NOT "${ARROW_USE_TSAN}" AND
     NOT ("${ARROW_USING_GOLD}" AND "${ARROW_LINK}" STREQUAL "d"))
@@ -429,6 +429,7 @@ endif (UNIX)
 add_subdirectory(src/arrow)
 add_subdirectory(src/arrow/util)
 add_subdirectory(src/arrow/types)
+add_subdirectory(src/vector)
 
 set(LINK_LIBS
   arrow_util
